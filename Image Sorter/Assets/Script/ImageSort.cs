@@ -20,6 +20,7 @@ public class ImageSort : MonoBehaviour
 {
 
     public Texture2D imageTo;
+    public Texture2D imageResult;
     public Texture2D imageFrom;
 
     public int sortRange;
@@ -57,8 +58,10 @@ public class ImageSort : MonoBehaviour
         {
             for (j = 0; j > imageTo.width; i++)
             {
-
+                // initialize data used in search
                 Color current = colorDataFrom[i][j];
+                float lowestDistance = 0;
+                Vector2 toSwapLoc = new Vector2(0,0);
 
                 for (k = -sortRange; k < sortRange+1; k++)
                 {
@@ -66,13 +69,22 @@ public class ImageSort : MonoBehaviour
                     {
                         if ((i+k>=0 && j+l>=0) && (i+k<imageTo.height && i+j<imageTo.width))
                         {
-                            //Detect how close a color is to another color in here
+                            // get the candidate and get the distance between the two
+                            Color candidate = colorDataTo[i + k][j + l];
+                            float distance = Mathf.Abs(current.r - candidate.r + current.g - candidate.r + current.b - candidate.b);
 
-
+                            // if distance is lower than lowestDistance then lowestDistance is set to distance and the location is recorded
+                            if (distance < lowestDistance)
+                            {
+                                lowestDistance = distance;
+                                toSwapLoc = new Vector2(i + k, j + l);
+                            }
 
                         }
                     }
                 }
+
+                
 
             }
         }
