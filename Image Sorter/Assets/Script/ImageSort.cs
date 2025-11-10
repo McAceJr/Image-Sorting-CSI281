@@ -32,6 +32,7 @@ public class ImageSort : MonoBehaviour
 
         int i, j, k, l;
 
+        // get each pixel's color and add it to the 2d array
         if (imageTo.width * imageTo.height == imageFrom.width * imageFrom.height)
         {
             for (i = 0; i < imageTo.height; i++)
@@ -47,6 +48,7 @@ public class ImageSort : MonoBehaviour
         }
         else
         {
+            // if width and height of the two images aren't the same size the function will not work (we could scale images to remove this)
             Debug.Log("Images are not same size");
             return;
         }
@@ -64,6 +66,7 @@ public class ImageSort : MonoBehaviour
                     {
                         if ((i+k>=0 && j+l>=0) && (i+k<imageTo.height && i+j<imageTo.width))
                         {
+                            //Detect how close a color is to another color in here
 
 
 
