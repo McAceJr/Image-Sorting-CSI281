@@ -62,7 +62,12 @@ public class ImageSort : MonoBehaviour
                 {
                     for (l = -sortRange; l < sortRange+1; l++)
                     {
+                        if ((i+k>=0 && j+l>=0) && (i+k<imageTo.height && i+j<imageTo.width))
+                        {
 
+
+
+                        }
                     }
                 }
 
