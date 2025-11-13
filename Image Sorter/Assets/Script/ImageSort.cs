@@ -1,48 +1,45 @@
 using UnityEngine;
 
-struct Pixel
-{
-
-    int id;
-    Color color;
-    Vector2Int loc;
-
-    Pixel(int ID, Color COLOR, Vector2Int LOC)
-    {
-        id = ID;
-        color = COLOR;
-        loc = LOC;
-    }
-
-}
-
 public class ImageSort : MonoBehaviour
 {
 
-    public Texture2D imageTo;
-    public Texture2D imageResult;
-    public Texture2D imageFrom;
+    public Texture2D fuckyou;
+
+    public Sprite imageTo;
+    private Texture2D imageResult;
+    private Sprite spriteResult;
+    public Sprite imageFrom;
+
+    public SpriteRenderer rendererTo;
+    public SpriteRenderer rendererResult;
+    public SpriteRenderer rendererFrom;
 
     public int sortRange;
-
-    public Color[][] colorDataTo;
-    public Color[][] colorDataFrom;
+    public const int IMAGE_SIZE = 64;
+    public Color[,] colorDataTo = new Color[IMAGE_SIZE, IMAGE_SIZE];
+    public Color[,] colorDataFrom = new Color[IMAGE_SIZE, IMAGE_SIZE];
 
     public void Start()
     {
 
+        imageResult = new Texture2D(IMAGE_SIZE, IMAGE_SIZE);
+
+        rendererTo.sprite = imageTo;
+
+        rendererFrom.sprite = imageFrom;
+
         int i, j, k, l;
 
         // get each pixel's color and add it to the 2d array
-        if (imageTo.width * imageTo.height == imageFrom.width * imageFrom.height)
+        if (imageTo.texture.width * imageTo.texture.height == imageFrom.texture.width * imageFrom.texture.height)
         {
-            for (i = 0; i < imageTo.height; i++)
+            for (i = 0; i < imageTo.texture.height; i++)
             {
-                for (j = 0; j < imageTo.width; j++)
+                for (j = 0; j < imageTo.texture.width; j++)
                 {
 
-                    colorDataTo[i][j] = imageTo.GetPixel(i, j);
-                    colorDataFrom[i][j] = imageFrom.GetPixel(i, j);
+                    colorDataTo[i,j] = imageTo.texture.GetPixel(4, 4);
+                    colorDataFrom[i,j] = imageFrom.texture.GetPixel(i, j);
 
                 }
             }
@@ -54,40 +51,54 @@ public class ImageSort : MonoBehaviour
             return;
         }
 
-        for (i = 0; i > imageTo.height; i++)
+        for (i = 0; i > imageTo.texture.height; i++)
         {
-            for (j = 0; j > imageTo.width; i++)
+            for (j = 0; j > imageTo.texture.width; i++)
             {
                 // initialize data used in search
-                Color current = colorDataFrom[i][j];
+                Color current = colorDataFrom[i,j];
                 float lowestDistance = 0;
-                Vector2 toSwapLoc = new Vector2(0,0);
+                Vector2Int toSwapLoc = new Vector2Int(0,0);
+                Color toSwapColor = new Color (0,0,0);
 
                 for (k = -sortRange; k < sortRange+1; k++)
                 {
                     for (l = -sortRange; l < sortRange+1; l++)
                     {
-                        if ((i+k>=0 && j+l>=0) && (i+k<imageTo.height && i+j<imageTo.width))
+                        if ((i+k>=0 && j+l>=0) && (i+k<imageTo.texture.height && i+j<imageTo.texture.width))
                         {
                             // get the candidate and get the distance between the two
-                            Color candidate = colorDataTo[i + k][j + l];
+                            Color candidate = colorDataTo[i + k,j + l];
                             float distance = Mathf.Abs(current.r - candidate.r + current.g - candidate.r + current.b - candidate.b);
 
                             // if distance is lower than lowestDistance then lowestDistance is set to distance and the location is recorded
                             if (distance < lowestDistance)
                             {
                                 lowestDistance = distance;
-                                toSwapLoc = new Vector2(i + k, j + l);
+                                toSwapLoc = new Vector2Int(i + k, j + l);
+                                toSwapColor = candidate;
                             }
 
                         }
                     }
                 }
 
-                
+                Color testColor = ((i & j) != 0 ? Color.white : Color.black);
+                imageResult.SetPixel(i, j, testColor);
+                //imageResult.SetPixel(toSwapLoc.x, toSwapLoc.y, testColor);
+                //imageResult.SetPixel(toSwapLoc.x, toSwapLoc.y, current);
+
 
             }
         }
+
+        imageResult.Apply();
+
+        spriteResult = Sprite.Create(imageResult, new Rect(0.0f, 0.0f, imageResult.width, imageResult.height), new Vector2(0.5f, 0.5f), 100.0f);
+
+        rendererResult.sprite = spriteResult;
+
+        Debug.Log("fuck you... here is your fucked up fucking image");
 
     }
 
