@@ -3,8 +3,6 @@ using UnityEngine;
 public class ImageSort : MonoBehaviour
 {
 
-    public Texture2D fuckyou;
-
     public Sprite imageTo;
     private Texture2D imageResult;
     private Sprite spriteResult;
