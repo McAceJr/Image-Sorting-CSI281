@@ -5,12 +5,18 @@
 
 int main()
 {
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    const int screenWidth = 1200;
+    const int screenHeight = 1200;
+
+
     const int imgWidth = 400;
     const int imgHeight = 400;
 
+    // Load Texture From Image Has To Happen After InitWindow
     InitWindow(screenWidth, screenHeight, "Pixel Manipulation");
+
+    Image test = LoadImage("Assets/Face1.png");
+    Texture2D testTexture = LoadTextureFromImage(test);
 
     SetTargetFPS(60);
 
@@ -39,12 +45,12 @@ int main()
 
         // drawing logic goes here
         BeginDrawing();
-        ClearBackground(BLACK);
-        DrawTexture(tex, 200, 25, WHITE);
+        ClearBackground(WHITE);
+        DrawTexture(testTexture, 0, 0, WHITE);
         EndDrawing();
     }
 
-    UnloadTexture(tex);
+    UnloadTexture(testTexture);
 
     CloseWindow();
     return 0;
