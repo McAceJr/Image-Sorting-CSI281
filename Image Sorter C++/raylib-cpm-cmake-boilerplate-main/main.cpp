@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <iostream>
 #include <math.h>
+#include <unordered_map>
+#include <vector>
 
 
 int main()
@@ -10,14 +12,16 @@ int main()
     const int screenWidth = 1200;
     const int screenHeight = 1200;
 
+    bool repeats = false;
+
     // Load Texture From Image Has To Happen After InitWindow
-    InitWindow(screenWidth, screenHeight, "Pixel Manipulation");
+    InitWindow(screenWidth, screenHeight, "Pixel Sort");
 
     SetTargetFPS(60);
 
-    Image imageFrom = LoadImage("Assets/photos-icon.png");
+    Image imageFrom = LoadImage("Assets/TestChecker2.png");
     auto pixelsFrom = (Color*)imageFrom.data;
-    Image imageTo = LoadImage("Assets/128colorwheel.png");
+    Image imageTo = LoadImage("Assets/Test4Lines1.png");
     auto pixelsTo = (Color*)imageTo.data;
 
     const int imgFromWidth = imageFrom.width, imgFromHeight = imageFrom.height;
@@ -28,7 +32,7 @@ int main()
     auto pixelsResult = (Color*)imageResult.data;
     Texture2D resultTexture = LoadTextureFromImage(imageResult);
 
-    int sortRange = 4;
+    std::unordered_map<int, int> usedPositions;
 
     /*Image img = GenImageColor(imgHeight, imgHeight, WHITE);
     ImageFormat(&img, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
@@ -39,26 +43,35 @@ int main()
     for(int row = 0; row < imgResultHeight; row++) {
         for(int col = 0; col < imgResultWidth; col++) {
 
-            Color closestPixel = pixelsFrom[row * imgResultWidth + col];
             int closestDistance = 10000000;
             auto currentPixelFrom = pixelsFrom[row * imgFromWidth + col];
+            int position;
 
-            for(int row = 0; row < imgResultHeight; row++) {
-                for(int col = 0; col < imgResultWidth; col++) {
+            for(int row2 = 0; row2 < imgResultHeight; row2++) {
+                for(int col2 = 0; col2 < imgResultWidth; col2++) {
 
-                     auto currentPixelTo = pixelsTo[row * imgResultWidth + col];
+                    int pos = row2 * imgFromWidth + col2;
 
-                     int distance = abs(currentPixelFrom.r - currentPixelTo.r + currentPixelFrom.g - currentPixelTo.g + currentPixelFrom.b - currentPixelTo.b + currentPixelFrom.a - currentPixelTo.a);
+                    if (usedPositions[pos] >= 1 && !repeats) {
 
-                     if (distance < closestDistance) {
-                         closestDistance = distance;
-                         closestPixel = currentPixelTo;
-                     }
+                    }
+                    else {
+                        auto currentPixelTo = pixelsTo[pos];
+
+                        int distance = abs(currentPixelFrom.r - currentPixelTo.r + currentPixelFrom.g - currentPixelTo.g + currentPixelFrom.b - currentPixelTo.b + currentPixelFrom.a - currentPixelTo.a);
+
+                        if (distance < closestDistance) {
+                            closestDistance = distance;
+                            position = pos;
+                        }
+                    }
 
                 }
             }
 
-            pixelsResult[row * imgResultWidth + col] = closestPixel;
+            usedPositions[position]++;
+
+            pixelsResult[position] = currentPixelFrom;
 
         }
     }
