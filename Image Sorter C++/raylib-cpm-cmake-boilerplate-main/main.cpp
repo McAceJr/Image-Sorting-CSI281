@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <raygui.h>
 #include <cstdint>
+#include <iostream>
 #include <math.h>
 
 
@@ -14,9 +15,9 @@ int main()
 
     SetTargetFPS(60);
 
-    Image imageFrom = LoadImage("Assets/Face1.png");
+    Image imageFrom = LoadImage("Assets/photos-icon.png");
     auto pixelsFrom = (Color*)imageFrom.data;
-    Image imageTo = LoadImage("Assets/Face2.png");
+    Image imageTo = LoadImage("Assets/red_to_green.png");
     auto pixelsTo = (Color*)imageTo.data;
 
     const int imgFromWidth = imageFrom.width, imgFromHeight = imageFrom.height;
@@ -27,7 +28,7 @@ int main()
     auto pixelsResult = (Color*)imageResult.data;
     Texture2D resultTexture = LoadTextureFromImage(imageResult);
 
-    int sortRange = 2;
+    int sortRange = 4;
 
     /*Image img = GenImageColor(imgHeight, imgHeight, WHITE);
     ImageFormat(&img, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
@@ -38,23 +39,25 @@ int main()
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         //Go through every pixel
-        for(int row = 0; row < imgFromHeight; row++) {
-            for(int col = 0; col < imgFromWidth; col++) {
+        for(int row = 0; row < imgResultHeight; row++) {
+            for(int col = 0; col < imgResultWidth; col++) {
 
-                Color closestPixel;
-                float closestDistance = 1000.0f;
-                auto currentPixelTo = pixelsTo[row * imgFromWidth + col];
+                Color closestPixel = pixelsFrom[row * imgResultWidth + col];
+                int closestDistance = 10000000;
+                auto currentPixelFrom = pixelsFrom[row * imgFromWidth + col];
+
                 //Sort Range a 5by5 cube centered around the current pixel
                 for (int sortRow = -sortRange; sortRow <= sortRange; sortRow++) {
                     for (int sortCol = -sortRange; sortCol <= sortRange; sortCol++) {
 
                         if ((row + sortRow >= 0 && row + sortRow < imgResultWidth) || (col + sortCol && col + sortCol < imgResultHeight)) {
-                            auto currentPixelFrom = pixelsFrom[(row + sortRow) * imgFromWidth + (col + sortCol)];
+                            auto currentPixelTo = pixelsTo[(row + sortRow) * imgFromWidth + (col + sortCol)];
 
-                            float distance = abs(currentPixelTo.r - currentPixelFrom.r + currentPixelTo.g - currentPixelFrom.g + currentPixelTo.b - currentPixelFrom.b);
+                            int distance = abs(currentPixelFrom.r - currentPixelTo.r + currentPixelFrom.g - currentPixelTo.g + currentPixelFrom.b - currentPixelTo.b);
 
                             if (distance < closestDistance) {
-                                closestPixel = currentPixelFrom;
+                                closestDistance = distance;
+                                closestPixel = currentPixelTo;
                             }
 
                         }
@@ -66,6 +69,7 @@ int main()
 
             }
         }
+
         UpdateTexture(resultTexture, pixelsResult);
         
 
@@ -80,4 +84,8 @@ int main()
 
     CloseWindow();
     return 0;
+}
+
+int TTO(int x, int y) {
+    return (x*y + y);
 }
