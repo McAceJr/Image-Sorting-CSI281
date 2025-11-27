@@ -67,11 +67,12 @@ int main()
             }
         }
         UpdateTexture(resultTexture, pixelsResult);
+        
 
         // drawing logic goes here
         BeginDrawing();
         ClearBackground(WHITE);
-        DrawTexture(resultTexture, 0, 0, WHITE);
+        DrawTextureEx(resultTexture, Vector2(0, 0), 0, 4.0f, WHITE);
         EndDrawing();
     }
 
