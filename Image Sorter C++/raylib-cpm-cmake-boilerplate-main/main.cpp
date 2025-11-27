@@ -17,7 +17,7 @@ int main()
 
     Image imageFrom = LoadImage("Assets/photos-icon.png");
     auto pixelsFrom = (Color*)imageFrom.data;
-    Image imageTo = LoadImage("Assets/red_to_green.png");
+    Image imageTo = LoadImage("Assets/128colorwheel.png");
     auto pixelsTo = (Color*)imageTo.data;
 
     const int imgFromWidth = imageFrom.width, imgFromHeight = imageFrom.height;
@@ -42,30 +42,51 @@ int main()
         for(int row = 0; row < imgResultHeight; row++) {
             for(int col = 0; col < imgResultWidth; col++) {
 
+                /* Color closestPixel = pixelsFrom[row * imgResultWidth + col];
+                // int closestDistance = 10000000;
+                // auto currentPixelFrom = pixelsFrom[row * imgFromWidth + col];
+                //
+                // //Sort Range a 5by5 cube centered around the current pixel
+                // for (int sortRow = -sortRange; sortRow <= sortRange; sortRow++) {
+                //     for (int sortCol = -sortRange; sortCol <= sortRange; sortCol++) {
+                //
+                //         if ((row + sortRow >= 0 && row + sortRow < imgResultWidth) || (col + sortCol && col + sortCol < imgResultHeight)) {
+                //             auto currentPixelTo = pixelsTo[(row + sortRow) * imgFromWidth + (col + sortCol)];
+                //
+                //             int distance = abs(currentPixelFrom.r - currentPixelTo.r + currentPixelFrom.g - currentPixelTo.g + currentPixelFrom.b - currentPixelTo.b);
+                //
+                //             if (distance < closestDistance) {
+                //                 closestDistance = distance;
+                //                 closestPixel = currentPixelTo;
+                //             }
+                //
+                //         }
+                //
+                //     }
+                // }
+                //
+                // pixelsResult[row * imgFromWidth + col] = closestPixel; */
+
                 Color closestPixel = pixelsFrom[row * imgResultWidth + col];
                 int closestDistance = 10000000;
                 auto currentPixelFrom = pixelsFrom[row * imgFromWidth + col];
 
-                //Sort Range a 5by5 cube centered around the current pixel
-                for (int sortRow = -sortRange; sortRow <= sortRange; sortRow++) {
-                    for (int sortCol = -sortRange; sortCol <= sortRange; sortCol++) {
+                for(int row = 0; row < imgResultHeight; row++) {
+                    for(int col = 0; col < imgResultWidth; col++) {
 
-                        if ((row + sortRow >= 0 && row + sortRow < imgResultWidth) || (col + sortCol && col + sortCol < imgResultHeight)) {
-                            auto currentPixelTo = pixelsTo[(row + sortRow) * imgFromWidth + (col + sortCol)];
+                         auto currentPixelTo = pixelsTo[row * imgResultWidth + col];
 
-                            int distance = abs(currentPixelFrom.r - currentPixelTo.r + currentPixelFrom.g - currentPixelTo.g + currentPixelFrom.b - currentPixelTo.b);
+                         int distance = abs(currentPixelFrom.r - currentPixelTo.r + currentPixelFrom.g - currentPixelTo.g + currentPixelFrom.b - currentPixelTo.b + currentPixelFrom.a - currentPixelTo.a);
 
-                            if (distance < closestDistance) {
-                                closestDistance = distance;
-                                closestPixel = currentPixelTo;
-                            }
-
-                        }
+                         if (distance < closestDistance) {
+                             closestDistance = distance;
+                             closestPixel = currentPixelTo;
+                         }
 
                     }
                 }
 
-                pixelsResult[row * imgFromWidth + col] = closestPixel;
+                pixelsResult[row * imgResultWidth + col] = closestPixel;
 
             }
         }
@@ -84,8 +105,4 @@ int main()
 
     CloseWindow();
     return 0;
-}
-
-int TTO(int x, int y) {
-    return (x*y + y);
 }
