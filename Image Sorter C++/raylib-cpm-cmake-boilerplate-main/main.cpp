@@ -6,6 +6,57 @@
 #include <unordered_map>
 #include <vector>
 
+// Function Prototypes
+bool SimilarColors(const Color& refenceColor, const Color& checkingColor, int variance);
+void SortColorIntArrays(std::vector<Color>& colorVector, std::vector<int>& repeatVector);
+void SortByRepition(Color* imageData, int width, int height, int variance);
+
+int main()
+{
+    const int screenWidth = 1200;
+    const int screenHeight = 1200;
+
+    // Load Texture From Image Has To Happen After InitWindow
+    InitWindow(screenWidth, screenHeight, "Pixel Sort");
+
+    SetTargetFPS(60);
+
+    Image imageFrom = LoadImage("Assets/red_to_green.png");
+    auto pixelsFrom = (Color*)imageFrom.data;
+
+    const int imgFromWidth = imageFrom.width, imgFromHeight = imageFrom.height;
+    Image imageResult = GenImageColor(imgFromWidth, imgFromHeight, WHITE);
+    auto pixelsResult = pixelsFrom;
+    Texture2D resultTexture = LoadTextureFromImage(imageResult);
+    Texture2D originalTexture = LoadTextureFromImage(imageFrom);
+
+    // Performing the sort
+    int colorVariance = 4; // Between 0 and 255
+    SortByRepition(pixelsResult, imgFromWidth, imgFromHeight, colorVariance);
+
+
+    UpdateTexture(resultTexture, pixelsResult);
+
+    float scaleFactor = (float)(screenWidth - 60) / (float)(imgFromWidth * 2);
+
+    // Main game loop
+    while (!WindowShouldClose())    // Detect window close button or ESC key
+    {
+        // drawing logic goes here
+        BeginDrawing();
+        ClearBackground(WHITE);
+        DrawTextureEx(originalTexture, Vector2(20, 20), 0, scaleFactor, WHITE);
+        DrawTextureEx(resultTexture, Vector2(40 + (imgFromWidth * scaleFactor), 20), 0, scaleFactor, WHITE);
+        EndDrawing();
+    }
+
+    UnloadTexture(originalTexture);
+    UnloadTexture(resultTexture);
+
+    CloseWindow();
+    return 0;
+}
+
 // Function Definitions
 bool SimilarColors(const Color& refenceColor, const Color& checkingColor, int variance)
 {
@@ -18,7 +69,6 @@ bool SimilarColors(const Color& refenceColor, const Color& checkingColor, int va
 
     return true;
 }
-
 void SortColorIntArrays(std::vector<Color>& colorVector, std::vector<int>& repeatVector)
 {
     for (int i = 0; i < (repeatVector.size()); i++)
@@ -37,44 +87,25 @@ void SortColorIntArrays(std::vector<Color>& colorVector, std::vector<int>& repea
         colorVector[checkIndex + 1] = currentColorValue;
     }
 }
-
-
-int main()
+void SortByRepition(Color* imageData, int width, int height, int variance)
 {
-    const int screenWidth = 1200;
-    const int screenHeight = 1200;
-
-    // Load Texture From Image Has To Happen After InitWindow
-    InitWindow(screenWidth, screenHeight, "Pixel Sort");
-
-    SetTargetFPS(60);
-
-    Image imageFrom = LoadImage("Assets/red_to_green.png");
-    auto pixelsFrom = (Color*)imageFrom.data;
-
-    const int imgFromWidth = imageFrom.width, imgFromHeight = imageFrom.height;
-    Image imageResult = GenImageColor(imgFromWidth, imgFromHeight, WHITE);
-    auto pixelsResult = (Color*)imageResult.data;
-    Texture2D resultTexture = LoadTextureFromImage(imageResult);
-    Texture2D originalTexture = LoadTextureFromImage(imageFrom);
-
+    // Deifning Vectors
     std::vector<Color> usedColors;
     std::vector<int> colorRepeats;
-    int colorVariance = 4; // Between 0 and 255
 
     //Go through every pixel
-    for(int row = 0; row < imgFromWidth; row++)
-    {   
-        for(int col = 0; col < imgFromHeight; col++)
+    for (int row = 0; row < width; row++)
+    {
+        for (int col = 0; col < height; col++)
         {
             // Checking the color of the current pixel
-            auto testColor = pixelsFrom[row * imgFromWidth + col];
+            auto testColor = imageData[row * width + col];
 
             // Going through each saved color and checking if it's similar enough to increase the count
             bool colorAdded = false;
             for (int i = 0; i < usedColors.size(); i++)
             {
-                if (SimilarColors(usedColors[i], testColor, colorVariance))
+                if (SimilarColors(usedColors[i], testColor, variance))
                 {
                     colorAdded = true;
                     colorRepeats[i]++;
@@ -101,29 +132,8 @@ int main()
         // Adding a pixel for each time a color is repeated
         for (int j = 0; j < colorRepeats[i]; j++)
         {
-            pixelsResult[pixelIndex] = usedColors[i];
+            imageData[pixelIndex] = usedColors[i];
             pixelIndex++;
         }
     }
-
-    UpdateTexture(resultTexture, pixelsResult);
-
-    float scaleFactor = (float)(screenWidth - 60) / (float)(imgFromWidth * 2);
-
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        // drawing logic goes here
-        BeginDrawing();
-        ClearBackground(WHITE);
-        DrawTextureEx(originalTexture, Vector2(20, 20), 0, scaleFactor, WHITE);
-        DrawTextureEx(resultTexture, Vector2(40 + (imgFromWidth * scaleFactor), 20), 0, scaleFactor, WHITE);
-        EndDrawing();
-    }
-
-    UnloadTexture(originalTexture);
-    UnloadTexture(resultTexture);
-
-    CloseWindow();
-    return 0;
 }
