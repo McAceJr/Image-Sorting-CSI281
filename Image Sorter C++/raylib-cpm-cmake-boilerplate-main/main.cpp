@@ -2,10 +2,12 @@
 #include <raygui.h>
 #include <cstdint>
 #include <iostream>
+#include <map>
 #include <math.h>
 #include <unordered_map>
 #include <vector>
 
+void JaceSort(int IRH, int IRW, Color* pixFrom, Color* pixTo, Color* &pixRes, bool repeat);
 
 int main()
 {
@@ -19,9 +21,9 @@ int main()
 
     SetTargetFPS(60);
 
-    Image imageFrom = LoadImage("Assets/TestChecker2.png");
+    Image imageFrom = LoadImage("Assets/Test4Lines1.png");
     auto pixelsFrom = (Color*)imageFrom.data;
-    Image imageTo = LoadImage("Assets/Test4Lines1.png");
+    Image imageTo = LoadImage("Assets/blacktowhite.png");
     auto pixelsTo = (Color*)imageTo.data;
 
     const int imgFromWidth = imageFrom.width, imgFromHeight = imageFrom.height;
@@ -30,35 +32,66 @@ int main()
     const int imgResultHeight = (imgFromHeight >= imgToHeight) ? imgFromHeight : imgToHeight;
     Image imageResult = GenImageColor(imgResultWidth, imgResultHeight, WHITE);
     auto pixelsResult = (Color*)imageResult.data;
+    auto pixelsResult2 = (Color*)imageResult.data;
     Texture2D resultTexture = LoadTextureFromImage(imageResult);
+    Texture2D fromTexture = LoadTextureFromImage(imageFrom);
+    Texture2D toTexture = LoadTextureFromImage(imageTo);
+
+    JaceSort(imgResultWidth, imgResultHeight, pixelsFrom, pixelsTo, pixelsResult, repeats);
+    UpdateTexture(resultTexture, pixelsResult2);
+
+    // Main game loop
+    while (!WindowShouldClose())    // Detect window close button or ESC key
+    {
+        // drawing logic goes here
+        BeginDrawing();
+        ClearBackground(WHITE);
+        DrawTextureEx(fromTexture, Vector2(0, 0), 0, 4.0f, WHITE);
+        DrawTextureEx(resultTexture, Vector2(0 + imgFromWidth * 4, 0), 0, 4.0f, WHITE);
+        DrawTextureEx(toTexture, Vector2(0, 0 + imgFromHeight * 4), 0, 4.0f, WHITE);
+        EndDrawing();
+    }
+
+    UnloadTexture(fromTexture);
+    UnloadTexture(resultTexture);
+    UnloadTexture(toTexture);
+
+    CloseWindow();
+    return 0;
+}
+
+void JaceSort(int IRH, int IRW, Color* pixFrom, Color* pixTo, Color* &pixRes, bool repeat) {
 
     std::unordered_map<int, int> usedPositions;
 
-    /*Image img = GenImageColor(imgHeight, imgHeight, WHITE);
-    ImageFormat(&img, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
-    auto pixels = (Color*)img.data;
-    Texture tex = LoadTextureFromImage(img);*/
+    for(int col = 0; col < IRH; col++) {
+        for(int row = 0; row < IRW; row++) {
 
-    //Go through every pixel
-    for(int row = 0; row < imgResultHeight; row++) {
-        for(int col = 0; col < imgResultWidth; col++) {
-
-            int closestDistance = 10000000;
-            auto currentPixelFrom = pixelsFrom[row * imgFromWidth + col];
+            float closestDistance = 10000000;
+            auto currentPixelFrom = pixFrom[col * IRW + row];
             int position;
 
-            for(int row2 = 0; row2 < imgResultHeight; row2++) {
-                for(int col2 = 0; col2 < imgResultWidth; col2++) {
 
-                    int pos = row2 * imgFromWidth + col2;
+            for(int col2 = 0; col2 < IRH; col2++) {
+                for(int row2 = 0; row2 < IRW; row2++) {
 
-                    if (usedPositions[pos] >= 1 && !repeats) {
+                    int pos = col2 * IRW + row2;
+
+                    if (usedPositions[pos] >= 1 && !repeat) {
 
                     }
                     else {
-                        auto currentPixelTo = pixelsTo[pos];
+                        auto tr = pixTo[pos].r;
+                        auto tg = pixTo[pos].g;
+                        auto tb = pixTo[pos].b;
+                        auto fr = currentPixelFrom.r;
+                        auto fg = currentPixelFrom.g;
+                        auto fb = currentPixelFrom.b;
 
-                        int distance = abs(currentPixelFrom.r - currentPixelTo.r + currentPixelFrom.g - currentPixelTo.g + currentPixelFrom.b - currentPixelTo.b + currentPixelFrom.a - currentPixelTo.a);
+                        /*int distance = abs(sqrt(0.299*(fr*fr)+0.587*(fg*fg)+0.114*(fb*fb))
+                            - sqrt(0.299*(tr*tr)+0.587*(tg*tg)+0.114*(tb*tb)));*/
+
+                        float distance = abs((0.299f*fr+0.587f*fg+0.114f*fb)/3.0f - (0.299f*tr+0.587f*tg+0.114f*tb)/3.0f);
 
                         if (distance < closestDistance) {
                             closestDistance = distance;
@@ -71,28 +104,9 @@ int main()
 
             usedPositions[position]++;
 
-            pixelsResult[position] = currentPixelFrom;
+            pixRes[position] = currentPixelFrom;
 
         }
     }
 
-    UpdateTexture(resultTexture, pixelsResult);
-
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-
-        
-
-        // drawing logic goes here
-        BeginDrawing();
-        ClearBackground(WHITE);
-        DrawTextureEx(resultTexture, Vector2(0, 0), 0, 4.0f, WHITE);
-        EndDrawing();
-    }
-
-    UnloadTexture(resultTexture);
-
-    CloseWindow();
-    return 0;
 }
