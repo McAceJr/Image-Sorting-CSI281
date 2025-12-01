@@ -5,13 +5,14 @@
 #include <math.h>
 #include <unordered_map>
 #include <vector>
-
+#include <algorithm>
 // Function Prototypes
 bool SimilarColors(const Color& refenceColor, const Color& checkingColor, int variance);
 void SortColorIntArrays(std::vector<Color>& colorVector, std::vector<int>& repeatVector);
 void SortByRepetition(Color* imageData, Image* originalImage, int width, int height, int variance);
 void GridSort(Color* imageReturn, Image* imageFrom, Image* imageTo, int gridDivision);
 void ImageSort(Color* imageReturn, Image* imageFrom, Image* imageTo);
+void SortByBrightness(Color* imageData, Image* originalImage, int width, int height);
 
 int main()
 {
@@ -39,7 +40,7 @@ int main()
     std::cout << "Welcome to the Sorting Lab!" << std::endl
         << "Pick which sort you'd like to perform:" << std::endl
         << "1. Sort by Color Repition" << std::endl
-        << "2. Image Comparison Sort" << std::endl;
+        << "2. Image Comparison Sort" << std::endl
         << "3. Sort by Brightness" << std::endl;
     std::cin >> sortChoice;
 
@@ -144,68 +145,44 @@ int main()
         imageTo = LoadImage(baseImageAddress.c_str());
         ImageSort(pixelsResult, &imageFrom, &imageTo);
     }
-    else if (sortChoice == 3)
+   else if (sortChoice == 3)
+   {
+    int originalImageChoice;
+    std::string originalImageAddress = "Assets/";
+    std::cout << "Please choose an image to get sorted" << std::endl
+        << "1. AI Apple" << std::endl
+        << "2. Obama" << std::endl
+        << "3. Fun Noise" << std::endl
+        << "4. Red to Green Gradient" << std::endl
+        << "5. Black to White Gradient" << std::endl
+        << "6. Shocked Cat" << std::endl
+        << "7. Soldier" << std::endl
+        << "8. Thinking Monkey" << std::endl
+        << "9. Checkerboard" << std::endl;
+    std::cin >> originalImageChoice;
+
+    switch (originalImageChoice)
     {
-        int originalImageChoice;
-        std::string originalImageAddress = "Assets/";
-        std::cout << "Please choose an image to get sorted" << std::endl
-            << "1. AI Apple" << std::endl
-            << "2. Obama" << std::endl
-            << "3. Fun Noise" << std::endl
-            << "4. Red to Green Gradient" << std::endl
-            << "5. Black to White Gradient" << std::endl
-            << "6. Shocked Cat" << std::endl
-            << "7. Soldier" << std::endl
-            << "8. Thinking Monkey" << std::endl
-            << "9. Checkerboard" << std::endl;
-        std::cin >> originalImageChoice;
+    case 1: originalImageAddress += "AIApple.png"; break;
+    case 2: originalImageAddress += "Obamify1.png"; break;
+    case 3: originalImageAddress += "FunNoise.png"; break;
+    case 4: originalImageAddress += "red_to_green.png"; break;
+    case 5: originalImageAddress += "black_to_white.png"; break;
+    case 6: originalImageAddress += "ShockedCat.png"; break;
+    case 7: originalImageAddress += "Soldier.png"; break;
+    case 8: originalImageAddress += "ThinkingMonkey.png"; break;
+    case 9: originalImageAddress += "TestChecker2.png"; break;
+    default: originalImageAddress += "FunNoise"; break;
+    }
 
-        switch (originalImageChoice)
-        {
-        case 1: originalImageAddress += "AIApple.png"; break;
-        case 2: originalImageAddress += "Obamify1.png"; break;
-        case 3: originalImageAddress += "FunNoise.png"; break;
-        case 4: originalImageAddress += "red_to_green.png"; break;
-        case 5: originalImageAddress += "black_to_white.png"; break;
-        case 6: originalImageAddress += "ShockedCat.png"; break;
-        case 7: originalImageAddress += "Soldier.png"; break;
-        case 8: originalImageAddress += "ThinkingMonkey.png"; break;
-        case 9: originalImageAddress += "TestChecker2.png"; break;
-        default: originalImageAddress += "FunNoise"; break;
-        }
+    imageFrom = LoadImage(originalImageAddress.c_str());
 
-        int baseImageChoice;
-        std::string baseImageAddress = "Assets/";
-        std::cout << "Please choose an image to be the sort base" << std::endl
-            << "1. AI Apple" << std::endl
-            << "2. Obama" << std::endl
-            << "3. Fun Noise" << std::endl
-            << "4. Red to Green Gradient" << std::endl
-            << "5. Black to White Gradient" << std::endl
-            << "6. Shocked Cat" << std::endl
-            << "7. Soldier" << std::endl
-            << "8. Thinking Monkey" << std::endl
-            << "9. Checkerboard" << std::endl;
-        std::cin >> baseImageChoice;
-
-        switch (baseImageChoice)
-        {
-        case 1: baseImageAddress += "AIApple.png"; break;
-        case 2: baseImageAddress += "Obamify1.png"; break;
-        case 3: baseImageAddress += "FunNoise.png"; break;
-        case 4: baseImageAddress += "red_to_green.png"; break;
-        case 5: baseImageAddress += "black_to_white.png"; break;
-        case 6: baseImageAddress += "ShockedCat.png"; break;
-        case 7: baseImageAddress += "Soldier.png"; break;
-        case 8: baseImageAddress += "ThinkingMonkey.png"; break;
-        case 9: baseImageAddress += "TestChecker2.png"; break;
-        default: baseImageAddress += "Obamify1"; break;
-        }
-
-        // Performing the Sort
-        imageFrom = LoadImage(originalImageAddress.c_str());
-        imageTo = LoadImage(baseImageAddress.c_str());
-        ImageSort(pixelsResult, &imageFrom, &imageTo);
+    UnloadImage(imageResult);
+    imageResult = GenImageColor(imageFrom.width, imageFrom.height, WHITE);
+    pixelsResult = (Color*)imageResult.data;  //edits pixels directly
+    SortByBrightness(pixelsResult, &imageFrom, imageFrom.width, imageFrom.height); 
+    UnloadTexture(resultTexture); //release to save space
+    resultTexture = LoadTextureFromImage(imageResult); //Give to drawing
     }
 
 
@@ -235,6 +212,11 @@ int main()
             DrawTextureEx(fromTexture, Vector2(20, 20), 0, scaleFactor, WHITE);
             DrawTextureEx(toTexture, Vector2(40 + (imageSize * scaleFactor), 20), 0, scaleFactor, WHITE);
             DrawTextureEx(resultTexture, Vector2(40 + (imageSize * scaleFactor) / 2, imageSize* scaleFactor + 40), 0, scaleFactor, WHITE);
+        }
+         else if (sortChoice == 3)
+        {
+            DrawTextureEx(fromTexture, Vector2{ 20, 20 }, 0, scaleFactor, WHITE);
+            DrawTextureEx(resultTexture, Vector2{ 40 + (imageFrom.width * scaleFactor), 20 }, 0, scaleFactor, WHITE);
         }
 
         EndDrawing();
@@ -281,7 +263,7 @@ void SortColorIntArrays(std::vector<Color>& colorVector, std::vector<int>& repea
 void SortByBrightness(Color* imageData, Image* originalImage, int width, int height)
 {
     Color* original = (Color*)originalImage->data;
-    std::vector<Color> pixels(originalImage, original + (width * height));
+    std::vector<Color> pixels(original, original + (width * height));
     std::sort(pixels.begin(), pixels.end(), 
         [](const Color& a, const Color& b){
             int ba = a.r + a.g + a.b; //Combines rgb values of two pixels
