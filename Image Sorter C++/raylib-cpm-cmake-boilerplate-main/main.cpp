@@ -9,7 +9,7 @@
 // Function Prototypes
 bool SimilarColors(const Color& refenceColor, const Color& checkingColor, int variance);
 void SortColorIntArrays(std::vector<Color>& colorVector, std::vector<int>& repeatVector);
-void SortByRepetition(Color* imageData, int width, int height, int variance);
+void SortByRepetition(Color* imageData, Image* originalImage, int width, int height, int variance);
 void GridSort(Color* imageReturn, Image* imageFrom, Image* imageTo, int gridDivision);
 void ImageSort(Color* imageReturn, Image* imageFrom, Image* imageTo);
 
@@ -17,31 +17,142 @@ int main()
 {
     const int screenWidth = 1200;
     const int screenHeight = 1200;
+    const int imageSize = 128;
+
 
     // Load Texture From Image Has To Happen After InitWindow
     InitWindow(screenWidth, screenHeight, "Pixel Sort");
-
     SetTargetFPS(60);
 
-    Image imageFrom = LoadImage("Assets/black_to_white.png");
-    Image imageTo = LoadImage("Assets/Obamify1.png");
-    auto pixelsFrom = (Color*)imageFrom.data;
+    // Generating base images and textures
+    Image imageFrom = GenImageColor(imageSize, imageSize, WHITE);
+    Image imageTo = GenImageColor(imageSize, imageSize, WHITE);
+    Image imageResult = GenImageColor(imageSize, imageSize, WHITE);
+    Color* pixelsResult = (Color*)imageResult.data;
 
-    const int imgFromWidth = imageFrom.width, imgFromHeight = imageFrom.height;
-    Image imageResult = GenImageColor(imgFromWidth, imgFromHeight, WHITE);
-    auto pixelsResult = pixelsFrom;
     Texture2D resultTexture = LoadTextureFromImage(imageResult);
     Texture2D fromTexture = LoadTextureFromImage(imageFrom);
     Texture2D toTexture = LoadTextureFromImage(imageTo);
 
-    // Performing the sort
-    //int colorVariance = 4; // Between 0 and 255
-    //SortByRepetition(pixelsResult, imgFromWidth, imgFromHeight, colorVariance);
-    GridSort(pixelsResult, &imageFrom, &imageTo, 1);
+    int sortChoice = 0;
+    std::cout << std::endl << std::endl << std::endl;
+    std::cout << "Welcome to the Sorting Lab!" << std::endl
+        << "Pick which sort you'd like to perform:" << std::endl
+        << "1. Sort by Color Repition" << std::endl
+        << "2. Image Comparison Sort" << std::endl;
+    //  << "3. Sort by Brightness" << std::endl;
+    std::cin >> sortChoice;
 
+    if (sortChoice == 1)
+    {
+        int imageChoice;
+        std::string imageAddress = "Assets/";
+        std::cout << "Please choose an image to sort by color repition" << std::endl
+            << "1. AI Apple" << std::endl
+            << "2. Obama" << std::endl
+            << "3. Fun Noise" << std::endl
+            << "4. Red to Green Gradient" << std::endl
+            << "5. Black to White Gradient" << std::endl
+            << "6. Shocked Cat" << std::endl
+            << "7. Soldier" << std::endl
+            << "8. Thinking Monkey" << std::endl
+            << "9. Checkerboard" << std::endl;
+        std::cin >> imageChoice;
+
+        switch (imageChoice)
+        {
+        case 1: imageAddress += "AIApple.png"; break;
+        case 2: imageAddress += "Obamify1.png"; break;
+        case 3: imageAddress += "FunNoise.png"; break;
+        case 4: imageAddress += "red_to_green.png"; break;
+        case 5: imageAddress += "black_to_white.png"; break;
+        case 6: imageAddress += "ShockedCat.png"; break;
+        case 7: imageAddress += "Soldier.png"; break;
+        case 8: imageAddress += "ThinkingMonkey.png"; break;
+        case 9: imageAddress += "TestChecker2.png"; break;
+        default: imageAddress += "FunNoise"; break;
+        }
+
+        int colorVariance;
+        std::cout << "Choose the color variation the sort should allow for (0-255): ";
+        std::cin >> colorVariance;
+
+        // Performing the Sort
+        imageFrom = LoadImage(imageAddress.c_str());
+        SortByRepetition(pixelsResult, &imageFrom, imageSize, imageSize, colorVariance);
+    }
+    else if (sortChoice == 2)
+    {
+        int originalImageChoice;
+        std::string originalImageAddress = "Assets/";
+        std::cout << "Please choose an image to get sorted" << std::endl
+            << "1. AI Apple" << std::endl
+            << "2. Obama" << std::endl
+            << "3. Fun Noise" << std::endl
+            << "4. Red to Green Gradient" << std::endl
+            << "5. Black to White Gradient" << std::endl
+            << "6. Shocked Cat" << std::endl
+            << "7. Soldier" << std::endl
+            << "8. Thinking Monkey" << std::endl
+            << "9. Checkerboard" << std::endl;
+        std::cin >> originalImageChoice;
+
+        switch (originalImageChoice)
+        {
+        case 1: originalImageAddress += "AIApple.png"; break;
+        case 2: originalImageAddress += "Obamify1.png"; break;
+        case 3: originalImageAddress += "FunNoise.png"; break;
+        case 4: originalImageAddress += "red_to_green.png"; break;
+        case 5: originalImageAddress += "black_to_white.png"; break;
+        case 6: originalImageAddress += "ShockedCat.png"; break;
+        case 7: originalImageAddress += "Soldier.png"; break;
+        case 8: originalImageAddress += "ThinkingMonkey.png"; break;
+        case 9: originalImageAddress += "TestChecker2.png"; break;
+        default: originalImageAddress += "FunNoise"; break;
+        }
+
+        int baseImageChoice;
+        std::string baseImageAddress = "Assets/";
+        std::cout << "Please choose an image to be the sort base" << std::endl
+            << "1. AI Apple" << std::endl
+            << "2. Obama" << std::endl
+            << "3. Fun Noise" << std::endl
+            << "4. Red to Green Gradient" << std::endl
+            << "5. Black to White Gradient" << std::endl
+            << "6. Shocked Cat" << std::endl
+            << "7. Soldier" << std::endl
+            << "8. Thinking Monkey" << std::endl
+            << "9. Checkerboard" << std::endl;
+        std::cin >> baseImageChoice;
+
+        switch (baseImageChoice)
+        {
+        case 1: baseImageAddress += "AIApple.png"; break;
+        case 2: baseImageAddress += "Obamify1.png"; break;
+        case 3: baseImageAddress += "FunNoise.png"; break;
+        case 4: baseImageAddress += "red_to_green.png"; break;
+        case 5: baseImageAddress += "black_to_white.png"; break;
+        case 6: baseImageAddress += "ShockedCat.png"; break;
+        case 7: baseImageAddress += "Soldier.png"; break;
+        case 8: baseImageAddress += "ThinkingMonkey.png"; break;
+        case 9: baseImageAddress += "TestChecker2.png"; break;
+        default: baseImageAddress += "Obamify1"; break;
+        }
+
+        // Performing the Sort
+        imageFrom = LoadImage(originalImageAddress.c_str());
+        imageTo = LoadImage(baseImageAddress.c_str());
+        ImageSort(pixelsResult, &imageFrom, &imageTo);
+    }
+
+
+    // Updating the Textures
+    UpdateTexture(fromTexture, imageFrom.data);
+    UpdateTexture(toTexture, imageTo.data);
     UpdateTexture(resultTexture, pixelsResult);
 
-    float scaleFactor = (float)(screenWidth - 60) / (float)(imgFromWidth * 2);
+    // Calculating some UI Scaling values
+    float scaleFactor = (float)(screenWidth - 60) / (float)(imageSize * 2);
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -49,9 +160,20 @@ int main()
         // drawing logic goes here
         BeginDrawing();
         ClearBackground(WHITE);
-        DrawTextureEx(fromTexture, Vector2(20, 20), 0, scaleFactor, WHITE);
-        DrawTextureEx(toTexture, Vector2(40 + (imgFromWidth * scaleFactor), 20), 0, scaleFactor, WHITE);
-        DrawTextureEx(resultTexture, Vector2(40 + (imgFromHeight * scaleFactor) / 2, imgFromHeight * scaleFactor + 40), 0, scaleFactor, WHITE);
+
+        // Drawing Images based on the choice
+        if (sortChoice == 1)
+        {
+            DrawTextureEx(fromTexture, Vector2(20, 20), 0, scaleFactor, WHITE);
+            DrawTextureEx(resultTexture, Vector2(40 + (imageSize * scaleFactor), 20), 0, scaleFactor, WHITE);
+        }
+        else if (sortChoice == 2)
+        {
+            DrawTextureEx(fromTexture, Vector2(20, 20), 0, scaleFactor, WHITE);
+            DrawTextureEx(toTexture, Vector2(40 + (imageSize * scaleFactor), 20), 0, scaleFactor, WHITE);
+            DrawTextureEx(resultTexture, Vector2(40 + (imageSize * scaleFactor) / 2, imageSize* scaleFactor + 40), 0, scaleFactor, WHITE);
+        }
+
         EndDrawing();
     }
 
@@ -93,8 +215,10 @@ void SortColorIntArrays(std::vector<Color>& colorVector, std::vector<int>& repea
         colorVector[checkIndex + 1] = currentColorValue;
     }
 }
-void SortByRepetition(Color* imageData, int width, int height, int variance)
+void SortByRepetition(Color* imageData, Image* originalImage, int width, int height, int variance)
 {
+    Color* originalData = (Color*)(originalImage->data);
+
     // Deifning Vectors
     std::vector<Color> usedColors;
     std::vector<int> colorRepeats;
@@ -105,7 +229,7 @@ void SortByRepetition(Color* imageData, int width, int height, int variance)
         for (int col = 0; col < height; col++)
         {
             // Checking the color of the current pixel
-            auto testColor = imageData[row * width + col];
+            auto testColor = originalData[row * width + col];
 
             // Going through each saved color and checking if it's similar enough to increase the count
             bool colorAdded = false;
