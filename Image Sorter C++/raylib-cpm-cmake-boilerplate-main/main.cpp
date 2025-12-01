@@ -40,7 +40,7 @@ int main()
         << "Pick which sort you'd like to perform:" << std::endl
         << "1. Sort by Color Repition" << std::endl
         << "2. Image Comparison Sort" << std::endl;
-    //  << "3. Sort by Brightness" << std::endl;
+        << "3. Sort by Brightness" << std::endl;
     std::cin >> sortChoice;
 
     if (sortChoice == 1)
@@ -82,6 +82,69 @@ int main()
         SortByRepetition(pixelsResult, &imageFrom, imageSize, imageSize, colorVariance);
     }
     else if (sortChoice == 2)
+    {
+        int originalImageChoice;
+        std::string originalImageAddress = "Assets/";
+        std::cout << "Please choose an image to get sorted" << std::endl
+            << "1. AI Apple" << std::endl
+            << "2. Obama" << std::endl
+            << "3. Fun Noise" << std::endl
+            << "4. Red to Green Gradient" << std::endl
+            << "5. Black to White Gradient" << std::endl
+            << "6. Shocked Cat" << std::endl
+            << "7. Soldier" << std::endl
+            << "8. Thinking Monkey" << std::endl
+            << "9. Checkerboard" << std::endl;
+        std::cin >> originalImageChoice;
+
+        switch (originalImageChoice)
+        {
+        case 1: originalImageAddress += "AIApple.png"; break;
+        case 2: originalImageAddress += "Obamify1.png"; break;
+        case 3: originalImageAddress += "FunNoise.png"; break;
+        case 4: originalImageAddress += "red_to_green.png"; break;
+        case 5: originalImageAddress += "black_to_white.png"; break;
+        case 6: originalImageAddress += "ShockedCat.png"; break;
+        case 7: originalImageAddress += "Soldier.png"; break;
+        case 8: originalImageAddress += "ThinkingMonkey.png"; break;
+        case 9: originalImageAddress += "TestChecker2.png"; break;
+        default: originalImageAddress += "FunNoise"; break;
+        }
+
+        int baseImageChoice;
+        std::string baseImageAddress = "Assets/";
+        std::cout << "Please choose an image to be the sort base" << std::endl
+            << "1. AI Apple" << std::endl
+            << "2. Obama" << std::endl
+            << "3. Fun Noise" << std::endl
+            << "4. Red to Green Gradient" << std::endl
+            << "5. Black to White Gradient" << std::endl
+            << "6. Shocked Cat" << std::endl
+            << "7. Soldier" << std::endl
+            << "8. Thinking Monkey" << std::endl
+            << "9. Checkerboard" << std::endl;
+        std::cin >> baseImageChoice;
+
+        switch (baseImageChoice)
+        {
+        case 1: baseImageAddress += "AIApple.png"; break;
+        case 2: baseImageAddress += "Obamify1.png"; break;
+        case 3: baseImageAddress += "FunNoise.png"; break;
+        case 4: baseImageAddress += "red_to_green.png"; break;
+        case 5: baseImageAddress += "black_to_white.png"; break;
+        case 6: baseImageAddress += "ShockedCat.png"; break;
+        case 7: baseImageAddress += "Soldier.png"; break;
+        case 8: baseImageAddress += "ThinkingMonkey.png"; break;
+        case 9: baseImageAddress += "TestChecker2.png"; break;
+        default: baseImageAddress += "Obamify1"; break;
+        }
+
+        // Performing the Sort
+        imageFrom = LoadImage(originalImageAddress.c_str());
+        imageTo = LoadImage(baseImageAddress.c_str());
+        ImageSort(pixelsResult, &imageFrom, &imageTo);
+    }
+    else if (sortChoice == 3)
     {
         int originalImageChoice;
         std::string originalImageAddress = "Assets/";
@@ -214,6 +277,20 @@ void SortColorIntArrays(std::vector<Color>& colorVector, std::vector<int>& repea
         repeatVector[checkIndex + 1] = currentRepeatValue;
         colorVector[checkIndex + 1] = currentColorValue;
     }
+}
+void SortByBrightness(Color* imageData, Image* originalImage, int width, int height)
+{
+    Color* original = (Color*)originalImage->data;
+    std::vector<Color> pixels(originalImage, original + (width * height));
+    std::sort(pixels.begin(), pixels.end(), 
+        [](const Color& a, const Color& b){
+            int ba = a.r + a.g + a.b; //Combines rgb values of two pixels
+            int bb = b.r + b.g + b.b;
+            return ba < bb; //compares value to find darker pixel and swaps it
+        }
+    );
+    for (int i=0; i < width * height; i++)
+        imageData[i] = pixels[i];
 }
 void SortByRepetition(Color* imageData, Image* originalImage, int width, int height, int variance)
 {
